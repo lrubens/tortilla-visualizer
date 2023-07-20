@@ -1,0 +1,150 @@
+syntax = "proto3";
+
+import "stream.proto";
+
+message Operation {
+  optional string name = 1;
+  optional uint64 id = 2;
+  reserved 3 to 10;
+  oneof op {
+    Broadcast broadcast = 11;
+    Joiner joiner = 12;
+    FiberLookup fiber_lookup = 13;
+    FiberWrite fiber_write = 14;
+    Repeat repeat = 15;
+    RepeatSig repeatsig = 16;
+    ALU alu = 17;
+    Reduce reduce = 18;
+    CoordHold coord_hold = 19;
+    CoordMask coord_mask = 20;
+    CoordDrop coord_drop = 21;
+  }
+}
+
+message Broadcast {
+  CrdStream.StreamID input = 1;
+  repeated CrdStream.StreamID output = 2;
+}
+
+message Joiner {
+  enum Type {
+    INTERSECT = 0;
+    UNION = 1;
+  }
+  message JoinBundle {
+    CrdStream.StreamID crd = 1;
+    optional string crd_label = 2;
+    RefStream.StreamID ref = 3;
+    optional string ref_label = 4;
+  }
+
+  Type join_type = 1;
+  repeated JoinBundle bundles = 2;
+  optional string index = 3;
+  optional string label = 4;
+}
+
+message FiberLookup {
+  bool ref = 1;
+  RefStream.StreamID output_ref = 2;
+  CrdStream.StreamID output_crd = 3;
+  string index = 4;
+  string tensor = 5;
+  uint32 mode = 6;
+  string format = 7;
+  bool src = 8;
+  bool root = 9;
+  optional string label = 10;
+}
+
+message FiberWrite {
+  bool ref = 1;
+  CrdStream.StreamID input_crd = 2;
+  optional string index = 3;
+  string tensor = 4;
+  optional string modeVal = 5;
+  optional string format = 6;
+  optional uint64 segsize = 7;
+  optional uint32 crdsize = 8;
+  optional string size = 9;
+  bool sink = 10;
+  optional string label = 11;
+}
+
+message Repeat {
+  RefStream.StreamID input_ref = 1;
+  RepSigStream.StreamID input_rep_sig = 2;
+}
+
+message RepeatSig {
+  CrdStream.StreamID input_crd = 1;
+  RepSigStream.StreamID output_rep_sig = 2;
+}
+
+message ALU {
+  message Val {
+    repeated ValStream.StreamID inputs = 1;
+    ValStream.StreamID output = 2;
+  }
+
+  message Crd {
+    repeated CrdStream.StreamID inputs = 1;
+    CrdStream.StreamID output = 2;
+  }
+
+  oneof conn {
+    Val vals = 1;
+    Crd crds = 2;
+  }
+
+  enum ALUOp {
+    ADD = 0;
+    SUB = 1;
+    MUL = 2;
+    DIV = 3;
+    EXP = 4;
+    SIN = 5;
+    COS = 6;
+    MAX = 7;
+  }
+  message Stage {
+    repeated uint64 inputs = 1;
+    uint64 output = 2;
+    ALUOp op = 3;
+  }
+
+  repeated Stage stages = 3;
+  uint64 output_val = 4;
+}
+
+message Reduce {
+  ValStream.StreamID input_val = 1;
+  ValStream.StreamID output_val = 2;
+}
+
+message CoordHold {
+  CrdStream.StreamID input_inner_crd = 1;
+  CrdStream.StreamID input_outer_crd = 2;
+  CrdStream.StreamID output_inner_crd = 3;
+  CrdStream.StreamID output_outer_crd = 4;
+}
+
+message CoordDrop {
+  CrdStream.StreamID input_inner_crd = 1;
+  CrdStream.StreamID input_outer_crd = 2;
+  CrdStream.StreamID output_inner_crd = 3;
+  CrdStream.StreamID output_outer_crd = 4;
+}
+
+message CoordMask {
+  CrdStream.StreamID input_inner_crd = 1;
+  CrdStream.StreamID input_outer_crd = 2;
+  RefStream.StreamID input_ref = 3;
+  CrdStream.StreamID output_inner_crd = 4;
+  CrdStream.StreamID output_outer_crd = 5;
+  RefStream.StreamID output_ref = 6;
+}
+
+message arrayvals {
+  string tensor = 1;
+}

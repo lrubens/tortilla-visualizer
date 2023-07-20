@@ -1,0 +1,11 @@
+name: "SimpleProgram",
+operators {
+  broadcast {
+    input {
+      id: 2
+    },
+    output{
+      id: 3
+    }
+  }
+}

@@ -1,0 +1,103 @@
+<!-- ACE Editor version -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id = "container">
+        <div id="banner"> 
+            <input type="file" class = "customInput" id="fileInput" style = "display: none">
+            <label for="fileInput" class="customInput">Choose File</label>
+            <button id="saveBtn" class="customInput">Download ProtoText</button>
+            <h1 id= "title"> SAM Visualization </h1>
+            <button id="downloadBtn" class = "customInput"> Download SVG</button>
+        </div>
+ 
+        <div id = "parent">
+            <div id="editor"></div>
+            <div id="graph"></div>
+        </div>
+    </div>
+
+    <!-- Update the HTML for the file input button -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src=" https://cdn.jsdelivr.net/npm/d3-graphviz@5.0.2/build/d3-graphviz.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/protobufjs/6.11.2/protobuf.min.js"></script>
+    <script>
+        window.protobuf = protobuf; // Assign protobuf to the window object
+    </script>
+    <script type="module" src="main.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/split.js@1.6.2/dist/split.min.js"></script>
+   <!-- Initialize Split.js -->
+    <script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        Split(['#editor', '#graph'], {
+            sizes: [50, 50],
+            minSize: [200, 200], // Minimum size of panels in pixels
+            gutterSize: 10, // Size of the gutter in pixels
+            cursor: 'col-resize' // CSS cursor value to display while dragging
+        });
+    });
+    </script>
+
+    <!-- Reading in the input from a file -->
+    <script>
+        // Get the file input element
+        const fileInput = document.getElementById('fileInput');
+        
+        // Add an event listener for file selection
+        fileInput.addEventListener('change', handleFileSelect);
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0]; // Get the selected file
+
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                const fileContents = e.target.result; // Get the file contents
+
+                // Fill the Ace Editor instance with the file contents
+                const editor = ace.edit('editor');
+                editor.setValue(fileContents);
+                editor.clearSelection();
+            };
+            reader.readAsText(file);
+        }
+    </script>
+
+
+    <!-- Download the Proto Text -->
+    <script> 
+        document.getElementById('saveBtn').addEventListener('click', function() {
+        // Get the editor content
+        const editor = ace.edit('editor');
+        const text = editor.getValue();
+
+        // Create a Blob object from the text
+        const textFile = new Blob([text], { type: 'text/plain' });
+
+        // Create a URL for the Blob object
+        const url = URL.createObjectURL(textFile);
+
+        // Create a temporary link and click it to start the download
+        const downloadLink = document.createElement('a');
+        downloadLink.href = url;
+        downloadLink.download = 'protoText.txt';
+
+        // Append the link to the body (required for Firefox)
+        document.body.appendChild(downloadLink);
+
+        // Simulate clicking the link
+        downloadLink.click();
+
+        // Remove the link after the download starts
+        document.body.removeChild(downloadLink);
+    });
+    </script>
+</body>
+</html>
