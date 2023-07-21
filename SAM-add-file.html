@@ -1,9 +1,15 @@
+<!-- File using for testing/debugging proto to dot using graph-add.dot as source-->
 <!DOCTYPE html>
 <meta charset="utf-8">
 <body>
-<script src="../node_modules/d3/dist/d3.js"></script>
-<script src="../node_modules/@hpcc-js/wasm/dist/graphviz.umd.js" type="javascript/worker"></script>
-<script src="../build/d3-graphviz.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src=" https://cdn.jsdelivr.net/npm/d3-graphviz@5.0.2/build/d3-graphviz.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/protobufjs/6.11.2/protobuf.min.js"></script>
+    <script>
+        window.protobuf = protobuf; // Assign protobuf to the window object
+    </script>
+    <script type="module" src="main.js"></script>
 <div id="graph" style="text-align: center;"></div>
 <script>
 

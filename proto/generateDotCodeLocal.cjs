@@ -1,40 +1,43 @@
+//node generateDotCodeLocal.cjs
+//used for local testing with generating dot code to ensure the parser works properly
+//input dot code generated into dreampuf to ensure accurate results
+
 const protobuf = require('protobufjs');
-const root = protobuf.loadSync("/home/pbeni/Research/tortilla/d3-graphviz/proto/tortilla.proto"); // abs path
+const root = protobuf.loadSync("/home/pbeni/Research/tortilla/tortilla-graphviz/proto/tortilla.proto"); // abs path
 const Operation = root.lookupType("Operation");
 const ProgramGraph = root.lookupType("ProgramGraph");
 
 // Update this list with your operation data
 var operationsData = [
   {
-    name: "fiberLookup",
-    id: 10,
+    name: "fiber_lookup",
+    id: 10, 
     fiber_lookup: {
       ref: true,
       output_ref: {
-        id:9
+        id: 9
       },
-      output_crd:{
-        id:9
+      output_crd: {
+        id: 9
       },
       index: "i",
       tensor: "B",
-      mode:0,
+      mode: 0,
       format: "compressed",
       src: true,
       root: true,
-      label: "FiberLookup i: B0\ncompressed"
     }
   },
 
   {
-    name: "fiberLookup",
+    name: "fiber_lookup",
     id: 11,
     fiber_lookup: {
-      ref: true, 
+      ref: true,
       output_ref: {
-        id: 9 
+        id: 9
       },
-      output_crd:{
+      output_crd: {
         id: 9
       },
       index: "i",
@@ -43,38 +46,36 @@ var operationsData = [
       format: "compressed",
       src: true,
       root: true,
-      label: "FiberLookup i: C0\ncompressed"
     }
   },
 
   {
-    name: "fiberwrite",
+    name: "fiber_write",
     id: 2,
     fiber_write: {
-      ref: false,
-      input_crd: { 
-        id: 9 
-      },
-      index: "i",
-      tensor: "X",
-      mode: "0",
-      format: "compressed",
-      segsize: 2,
-      crdsize: "B0",
-      sink: true,
-      label: "FiberWrite i: X0\ncompressed"
-    }
+        ref: false,
+        input_crd: { 
+          id: 9 
+        },
+        index: "i",
+        tensor: "X",
+        mode: "0",
+        format: "compressed",
+        segsize: "2",
+        crdsize: "B0",
+        sink: true,
+      }
   },
 
   {
-    name: "fiberLookup",
+    name: "fiber_lookup",
     id: 7,
     fiber_lookup: {
       ref: true,
       output_ref: {
         id: 6
       },
-      output_crd:{
+      output_crd: {
         id: 6
       },
       index: "j",
@@ -83,19 +84,18 @@ var operationsData = [
       format: "compressed",
       src: true,
       root: false,
-      label: "FiberLookup j: B1\ncompressed"
     }
   },
 
   {
-    name: "fiberLookup",
+    name: "fiber_lookup",
     id: 8,
     fiber_lookup: {
       ref: true,
       output_ref: {
         id: 6
       },
-      output_crd:{
+      output_crd: {
         id: 6
       },
       index: "j",
@@ -104,27 +104,25 @@ var operationsData = [
       format: "compressed",
       src: true,
       root: false,
-      label: "FiberLookup j: C1\ncompressed"
     }
   },
 
   {
-    name: "fiberwrite",
+    name: "fiber_write",
     id: 1,
     fiber_write: {
-      ref: false,
-      input_crd: {
-        id: 1 
-      },
-      index: "j",
-      tensor: "X",
-      mode: "1",
-      format: "compressed",
-      segsize: "B0_dim+1",
-      crdsize: "B0_dim*B1_dim",
-      sink: true,
-      label: "FiberWrite j: X1\ncompressed"
-    }
+        ref: false,
+        input_crd: { 
+          id: 1 
+        },
+        index: "j",
+        tensor: "X",
+        mode: "1",
+        format: "compressed",
+        segsize: "B0_dim+1",
+        crdsize: "B0_dim*B1_dim",
+        sink: true,
+      }
   },
 
   {
@@ -144,101 +142,150 @@ var operationsData = [
   },
 
   {
-    name: "fiberwrite",
+    name: "fiber_write",
     id: 0,
     fiber_write: {
-      ref: false,
-      input_crd: {
-        id: 1 
-      },
-      tensor: "X",
-      mode: "vals",
-      size: "1*B0_dim*B1_dim",
-      sink: true,
-      label: "FiberWrite Vals: X"
-    }
+        ref: false,
+        input_crd: { 
+          id: 1 
+        },
+        tensor: "X",
+        mode: "vals",
+        size: "1*B0_dim*B1_dim",
+        sink: true,
+      }
   },
 
-
   {
-    name: "union",
+    name: "Union",
     id: 9,
     joiner: {
-      join_type: 1,
-      bundles: [
-        {
-        crd: 2,
-        crd_label: "crd",
-        ref: 0,
-        }, 
-        {
-          crd: 0,
-          ref: 7,
-          ref_label: "ref_out-B"
+        join_type: 1,
+        bundles: [{ 
+          crd: {
+            id: 2
+          },
+          crd_label: "crd",
+          ref: {
+            id: 0
+          },
         },
-        {
-          crd:0,
-          ref: 8,
-          ref_label: "ref-out-C"
-        }
-      ],
-      index: "i",
-      label: "union i"
+        { 
+          crd: {
+            id: 0
+          },
+          ref: {
+            id: 7
+          },
+          ref_label: "ref_out-B",
+        },
+        { 
+          crd: {
+            id: 0
+          },
+          ref: {
+            id: 8
+          },
+          ref_label: "ref_out-C",
+        }],
+        output_ref1: {
+          id: 7
+        },
+        output_ref2: {
+          id: 8
+        },
+        output_crd: {
+          id: 2
+        },
+        index: "i"
     }
   },
 
   {
-    name: "union",
+    name: "Union",
     id: 6,
     joiner: {
-      join_type: 1,
-      bundles: [
-        {
-        crd: 1,
-        crd_label: "crd",
-        ref: 0,
+        join_type: 1,
+        bundles: [{ 
+          crd: {
+            id: 1
+          },
+          crd_label: "crd",
+          ref: {
+            id: 0
+          },
         },
-        {
-          crd: 0,
-          ref: 4,
-          ref_label: "ref_out-B"
+        { 
+          crd: {
+            id: 0
+          },
+          ref: {
+            id: 4
+          },
+          ref_label: "ref_out-B",
         },
-        {
-          crd:0,
-          ref: 5,
-          ref_label: "ref-out-C"
-        }
-      ],
-      index: "j",
-      label: "union j"
+        { 
+          crd: {
+            id: 0
+          },
+          ref: {
+            id: 5
+          },
+          ref_label: "ref_out-C",
+        }],
+        output_ref1: {
+          id: 4
+        },
+        output_ref2: {
+          id: 5
+        },
+        output_crd: {
+          id: 1
+        },
+        index: "j"
     }
   },
 
   {
-    name: "add",
+    name: "Add",
     id: 3,
-    alu: {
-      conn: {
+      alu: {
         vals: {
           inputs: [
-            { id: 4 },
-            { id: 5 }
+            {
+              id: 4
+            },
+            {
+              id: 5
+            }
           ],
-          output: { id: 0 },
-        }
-      },
-      stages: [
-        {
-          inputs: [4, 5],
+          output: {
+              id: 0
+          }
+        },
+        stages: {
+          inputs: [
+              4, 5
+          ],
           output: 0,
-          op: 0
-        }
-      ],
-      output_val: 0
-    }
+          op: 0,
+        },
+        output_val: 0
+      }
   }
+
 ];
 
+// {
+//   broadcast: {
+//     input: {
+//       id: 2
+//     },
+//     output: {
+//       id: 3
+//     }
+//   }
+// }
 // Create an array of operation instances from the operation data
 var operations = operationsData.map(data => Operation.create(data));
 
@@ -250,7 +297,7 @@ var programGraphData = {
 };
 var programGraph = ProgramGraph.create(programGraphData);
 
-// Now you can use the programGraph instance as needed...
+  // Now you can use the programGraph instance as needed...
   let dotCode = `digraph SAM {\n`;
   for(let operation of programGraph.operators){
     var operationMessage = Operation.fromObject(operation);
@@ -258,41 +305,48 @@ var programGraph = ProgramGraph.create(programGraphData);
     if(operationMessage.fiber_lookup){
       const fl = operationMessage.fiber_lookup;
       //adding node
-      dotCode += `${operationMessage.id}[label = "${fl.label}" color=green4 shape=box style=filled type="${operationMessage.name}" index="${fl.index}" tensor="${fl.tensor}" mode="${fl.mode}" format="${fl.mode}" src="${fl.src}" root="${fl.root}"]\n`;
+      var label = `${operationMessage.name} ${fl.index}: ${fl.tensor}${fl.mode}\\n${fl.format}`
+      dotCode += `${operationMessage.id}[label = "${label}" color=green4 shape=box style=filled type="${operationMessage.name}" index="${fl.index}" tensor="${fl.tensor}" mode="${fl.mode}" format="${fl.mode}" src="${fl.src}" root="${fl.root}"]\n`;
       
       //set red.id to 0 for nodes that are a part of a joiner
       if(fl.ref == true){ 
         //adding CRD edge 
-        dotCode += `${operationMessage.id} -> ${fl.output_ref.id} [label="crd_in-B" style=dashed type="crd" comment="in-B"]\n`;
+        dotCode += `${operationMessage.id} -> ${fl.output_ref.id} [label="crd_in-${fl.tensor}" style=dashed type="crd" comment="in-${fl.tensor}"]\n`;
         //adding edge
-        dotCode += `${operationMessage.id} -> ${fl.output_crd.id} [label="ref_in-B" style=bold type="ref" comment="in-B"]\n`;
+        dotCode += `${operationMessage.id} -> ${fl.output_crd.id} [label="ref_in-${fl.tensor}" style=bold type="ref" comment="in-${fl.tensor}"]\n`;
       } 
     }
 
     else if(operationMessage.joiner){
       const joiner = operationMessage.joiner;
-      dotCode += `${operationMessage.id}[label = "${joiner.label}" color="#800080" shape=box style=filled type="${operationMessage.name}" index="${joiner.index}"]\n`;
+      var label = `${operationMessage.name} ${joiner.index}`
+      dotCode += `${operationMessage.id}[label = "${label}" color="#800080" shape=box style=filled type="${operationMessage.name}" index="${joiner.index}"]\n`;
 
       //add edges from inside the bundles
       joiner.bundles.forEach(bundle => {
-        if(bundle.crd != 0){
-        dotCode += `${operationMessage.id} -> ${bundle.crd} [label="${bundle.crd_label}" style=dashed type="crd" comment="join-crd"]\n`;
+        if(bundle.crd.id != 0){
+        dotCode += `${operationMessage.id} -> ${bundle.crd.id} [label="${bundle.crd_label}" style=dashed type="crd" comment="join-crd"]\n`;
         }
-        if(bundle.ref != 0){
-          dotCode += `${operationMessage.id} -> ${bundle.ref} [label="${bundle.ref_label}" style=bold type="ref" comment="join-crd"]\n`;
+        if(bundle.ref.id != 0){
+          dotCode += `${operationMessage.id} -> ${bundle.ref.id} [label="${bundle.ref_label}" style=bold type="ref" comment="join-crd"]\n`;
         }
       })
     }
 
     else if(operationMessage.fiber_write){
       const fw = operationMessage.fiber_write;
+      if(fw.mode != "vals"){
+        var label = `${operationMessage.name} ${fw.index}: ${fw.tensor}${fw.mode}\\n${fw.format}`
+      } else{
+        var label = `${operationMessage.name} ${fw.mode}: ${fw.tensor}`
+      }
       //adding node
-      dotCode += `${operationMessage.id}[label="${fw.label}" color=green3 shape=box style=filled type="${operationMessage.name}" index="${fw.index}" tensor="${fw.tensor}" mode="${fw.mode}" format="${fw.format}" segsize="${fw.segsize}" crdsize="${fw.crdsize}_dim" sink="${fw.sink}"]\n`;
+      dotCode += `${operationMessage.id} [label="${label}" color=green3 shape=box style=filled type="${operationMessage.name}" index="${fw.index}" tensor="${fw.tensor}" mode="${fw.mode}" format="${fw.format}" segsize="${fw.segsize}" crdsize="${fw.crdsize}_dim" sink="${fw.sink}"]\n`;
     }
 
     else if(operationMessage.arrayvals){
       const av = operationMessage.arrayvals;
-      dotCode += `${operationMessage.id}[label="Array Vals: ${av.tensor}" color=green2 shape=box style=filled type="${operationMessage.name}" tensor="${av.tensor}"]\n`;
+      dotCode += `${operationMessage.id} [label="Array Vals: ${av.tensor}" color=green2 shape=box style=filled type="${operationMessage.name}" tensor="${av.tensor}"]\n`;
     }
 
     else if(operationMessage.alu){
@@ -302,11 +356,11 @@ var programGraph = ProgramGraph.create(programGraphData);
 
       //add edges from ALU input
       // Add edges from ALU inputs
-      for (let input of alu.conn.vals.inputs) {
+      for (let input of alu.vals.inputs) {
         dotCode += `${input.id} -> ${operationMessage.id} [label="val" type="val"]\n`;
       }
       //add edge from output 
-      dotCode += `${operationMessage.id} -> ${alu.conn.vals.output.id} [label="val" type="val"]\n`;
+      dotCode += `${operationMessage.id} -> ${alu.vals.output.id} [label="val" type="val"]\n`;
     }
   }
 

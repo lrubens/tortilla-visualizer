@@ -18,6 +18,7 @@ message Operation {
     CoordHold coord_hold = 19;
     CoordMask coord_mask = 20;
     CoordDrop coord_drop = 21;
+    ArrayVals arrayvals = 22;
   }
 }
 
@@ -62,10 +63,10 @@ message FiberWrite {
   CrdStream.StreamID input_crd = 2;
   optional string index = 3;
   string tensor = 4;
-  optional string modeVal = 5;
+  optional string mode = 5;
   optional string format = 6;
-  optional uint64 segsize = 7;
-  optional uint32 crdsize = 8;
+  optional string segsize = 7;
+  optional string crdsize = 8;
   optional string size = 9;
   bool sink = 10;
   optional string label = 11;
@@ -145,6 +146,6 @@ message CoordMask {
   RefStream.StreamID output_ref = 6;
 }
 
-message arrayvals {
+message ArrayVals {
   string tensor = 1;
 }
