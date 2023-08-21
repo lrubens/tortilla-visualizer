@@ -27,6 +27,22 @@ def process_proto(program):
     dot = ""
     channel_map = {}
 
+    # add broadcast hooks first since order matters for connections
+    for operator in program.operators:
+        op = operator.WhichOneof("op")
+        op_id = operator.id
+        if op == "broadcast":
+            bd = operator.broadcast
+            bd_conn = {}
+            bd_conn["crd"] = bd.crd
+            bd_conn["ref"] = bd.ref
+            bd_conn["repsig"] = bd.repsig
+            bd_conn["val"] = bd.val
+            dot += f"{operator.id} [shape=point style=invis type=\"broadcast\"]"
+            bd_type = bd.WhichOneof("conn")
+            for output in bd_conn[bd_type].outputs:
+                channel_map[output.id.id] = operator.id
+
     for operator in program.operators:
         op = operator.WhichOneof("op")
         op_id = operator.id
@@ -108,6 +124,22 @@ def process_proto(program):
                 dot += f"{channel_map[cd.input_outer_crd.id.id]} -> {operator.id} [label=\"{cd.input_outer_crd.name}\" style=dashed type=\"val\"]\n"
             channel_map[cd.output_inner_crd.id.id] = operator.id
             channel_map[cd.output_outer_crd.id.id] = operator.id
+        elif op == "spacc":
+            sp = operator.spacc
+            dot += f"{operator.id} [label=\"SparseAccumulator 0 0=i \" color=brown shape=box style=filled type=\"spaccumulator\" order=\"0\" in0=\"{sp.inner_crd}\"]\n"
+            if sp.input_val.id.id in channel_map:
+                dot += f"{channel_map[sp.input_val.id.id]} -> {operator.id} [label=\"{sp.input_val.name}\" type=\"val\"]\n"
+            channel_map[sp.output_val.id.id] = operator.id
+        elif op == "broadcast":
+            bd = operator.broadcast
+            bd_conn = {}
+            bd_conn["crd"] = (bd.crd, "dashed")
+            bd_conn["ref"] = (bd.ref, "bold")
+            bd_conn["repsig"] = (bd.repsig, "dotted")
+            bd_conn["val"] = (bd.val, "solid")
+            bd_type = bd.WhichOneof("conn")
+            if bd_conn[bd_type][0].input.id.id in channel_map:
+                dot += f"{channel_map[bd_conn[bd_type][0].input.id.id]} -> {operator.id} [label=\"{bd_type}\" style=\"{bd_conn[bd_type][1]}\"]\n"
 
     return dot
 

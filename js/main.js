@@ -1,5 +1,3 @@
-// import { generateDotCode } from '../src/generateDotCode.js';
-
 //Button handler to download graphic as SVG
 document.getElementById('downloadBtn').addEventListener('click', function () {
   var svgElement = document.querySelector('#graph svg'); // Select the SVG element
@@ -18,10 +16,11 @@ document.getElementById('downloadBtn').addEventListener('click', function () {
 });
 
 var editor = ace.edit("editor");
-editor.setTheme("ace/theme/twilight");
-editor.getSession().setMode("ace/mode/text");
-//the following line allows the editor to directly read in dot
-//editor.session.setMode("ace/mode/dot");
+editor.setTheme("ace/theme/monokai");
+editor.getSession().setMode("ace/mode/protobuf");
+editor.getSession().on('change', function () {
+  renderGraph()
+});
 
 var margin = 40; // to avoid scrollbars
 var graphviz; // Declare the graphviz variable
@@ -62,9 +61,7 @@ d3.select(window).on("resize", resizeSVG);
 d3.select(window).on("click", resetZoom);
 
 function renderGraph() {
-  var protoTextSource = editor.getValue();
-
-  // generateDotCode(protoTextSource)
+  var text_proto = editor.getValue();
 
   const url = "http://localhost:5000/process"
   fetch(url, {
@@ -73,7 +70,7 @@ function renderGraph() {
       "Content-Type": "application/json",
       "Access-Control-Allow-Origin": "*"
     },
-    body: protoTextSource
+    body: text_proto
   }).then(response => response.text())
     .then(dotSource => {
       console.log(dotSource);
@@ -93,15 +90,3 @@ function renderGraph() {
       console.error(error);
     });
 }
-
-
-// Initial rendering
-renderGraph();
-
-// Reload the graph when the file changes
-function watchFileChanges() {
-  renderGraph(); // Render the graph on each check
-  setTimeout(watchFileChanges, 1000); // Check for file changes every second
-}
-
-watchFileChanges();
