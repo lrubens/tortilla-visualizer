@@ -10,6 +10,7 @@
 - Run `python app.py` to spin up flask server for processing text proto entered in web editor
 
 ## Flask App Structure.
+```
 | |────css/
 | | |────style.css
 | |────examples/
@@ -18,3 +19,4 @@
 | |────tortilla (submodule)
 |────Makefile
 |────app.py
+```
