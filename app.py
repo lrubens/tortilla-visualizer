@@ -126,10 +126,16 @@ def process_proto(program):
             channel_map[cd.output_outer_crd.id.id] = operator.id
         elif op == "spacc":
             sp = operator.spacc
-            dot += f"{operator.id} [label=\"SparseAccumulator 0 0=i \" color=brown shape=box style=filled type=\"spaccumulator\" order=\"0\" in0=\"{sp.inner_crd}\"]\n"
+            in_lst = [f"0={sp.inner_crd}"]
+            in_lst.extend([f"{num+1}={index}" for num,
+                           index in enumerate(sp.outer_crds)])
+            dot += f"{operator.id} [label=\"{sp.label} {' '.join(in_lst)} \" color=brown shape=box style=filled type=\"spaccumulator\" order=\"{sp.order}\" in0=\"{sp.inner_crd}\"]\n"
             if sp.input_val.id.id in channel_map:
                 dot += f"{channel_map[sp.input_val.id.id]} -> {operator.id} [label=\"{sp.input_val.name}\" type=\"val\"]\n"
             channel_map[sp.output_val.id.id] = operator.id
+            channel_map[sp.output_inner_crd.id.id] = operator.id
+            for outer_crd in sp.output_outer_crds:
+                channel_map[outer_crd.id.id] = operator.id
         elif op == "broadcast":
             bd = operator.broadcast
             bd_conn = {}
