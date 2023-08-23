@@ -132,6 +132,11 @@ def process_proto(program):
             dot += f"{operator.id} [label=\"{sp.label} {' '.join(in_lst)} \" color=brown shape=box style=filled type=\"spaccumulator\" order=\"{sp.order}\" in0=\"{sp.inner_crd}\"]\n"
             if sp.input_val.id.id in channel_map:
                 dot += f"{channel_map[sp.input_val.id.id]} -> {operator.id} [label=\"{sp.input_val.name}\" type=\"val\"]\n"
+            if sp.input_inner_crd.id.id in channel_map:
+                dot += f"{channel_map[sp.input_inner_crd.id.id]} -> {operator.id} [label=\"{sp.input_inner_crd.name}\" style=\"dashed\" type=\"crd\"]\n"
+            for in_outer_crd in sp.input_outer_crds:
+                if in_outer_crd.id.id in channel_map:
+                    dot += f"{channel_map[in_outer_crd.id.id]} -> {operator.id} [label=\"{in_outer_crd.name}\" style=\"dashed\" type=\"crd\"]\n"
             channel_map[sp.output_val.id.id] = operator.id
             channel_map[sp.output_inner_crd.id.id] = operator.id
             for outer_crd in sp.output_outer_crds:
