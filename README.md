@@ -4,7 +4,7 @@
 - Install [protobuf compiler](https://grpc.io/docs/protoc-installation/)
 - `git submodule update --init` 
 - `pip install -r requirements.txt`
-- `Make`
+- `make`
 
 ## Getting Started
 - Use a web preview extension in your code editor to render html file under templates/, I recommend vscode-preview-server in VS Code.
