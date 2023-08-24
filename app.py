@@ -42,6 +42,10 @@ def process_proto(program):
             bd_type = bd.WhichOneof("conn")
             for output in bd_conn[bd_type].outputs:
                 channel_map[output.id.id] = operator.id
+        elif op == "func":
+            intrin = operator.func
+            dot += f"{operator.id} [label=\"{intrin.name}\" color=palevioletred2 shape=box style=filled type=\"intrinsic\"]"
+            channel_map[intrin.output_val.id.id] = operator.id
 
     for operator in program.operators:
         op = operator.WhichOneof("op")
@@ -130,6 +134,11 @@ def process_proto(program):
             if sp.input_val.id.id in channel_map:
                 dot += f"{channel_map[sp.input_val.id.id]} -> {operator.id} [label=\"{sp.input_val.name}\" type=\"val\"]\n"
             channel_map[sp.output_val.id.id] = operator.id
+        elif op == "func":
+            intrin = operator.func
+            if intrin.input_val.id.id in channel_map:
+                dot += f"{channel_map[intrin.input_val.id.id]} -> {operator.id} [label=\"{intrin.input_val.name}\" type=\"val\"]\n"
+
         elif op == "broadcast":
             bd = operator.broadcast
             bd_conn = {}
