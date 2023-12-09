@@ -42,6 +42,30 @@ def process_proto(program):
             bd_type = bd.WhichOneof("conn")
             for output in bd_conn[bd_type].outputs:
                 channel_map[output.id.id] = operator.id
+        elif op == "fork":
+            print("inside fork")
+            bd = operator.fork
+            bd_conn = {}
+            bd_conn["crd"] = bd.crd
+            bd_conn["ref"] = bd.ref
+            bd_conn["repsig"] = bd.repsig
+            bd_conn["val"] = bd.val
+            dot += f"{operator.id} [label = \"Fork\" shape=box color=purple style=invis type=\"fork\"]"
+            bd_type = bd.WhichOneof("conn")
+            for output in bd_conn[bd_type].outputs:
+                channel_map[output.id.id] = operator.id
+        elif op == "join":
+            print("inside join")
+            bd = operator.join
+            bd_conn = {}
+            bd_conn["crd"] = bd.crd
+            bd_conn["ref"] = bd.ref
+            bd_conn["repsig"] = bd.repsig
+            bd_conn["val"] = bd.val
+            dot += f"{operator.id} [label = \"Join\" shape=box color=purple style=invis type=\"fork\"]"
+            bd_type = bd.WhichOneof("conn")
+            # for output in bd_conn[bd_type].outputs:
+            channel_map[bd_conn[bd_type].output.id.id] = operator.id
         elif op == "func":
             intrin = operator.func
             dot += f"{operator.id} [label=\"{intrin.name}\" color=palevioletred2 shape=box style=filled type=\"intrinsic\"]"
@@ -56,14 +80,21 @@ def process_proto(program):
     for operator in program.operators:
         op = operator.WhichOneof("op")
         op_id = operator.id
+        # print(op)
         if op == "fiber_lookup":
             fl = operator.fiber_lookup
             label = fl.label
-            dot += f"{operator.id} [label = \"{label}\" color=green4 shape=box style=filled type=\"{operator.name}\" index=\"{fl.index}\" tensor=\"{fl.tensor}\" format=\"{fl.mode}\" src=\"{fl.src}\" root=\"{fl.root}\"]\n"
+            dot += f"{operator.id} [label = \"{label}\" color=green1 shape=box style=filled type=\"{operator.name}\" index=\"{fl.index}\" tensor=\"{fl.tensor}\" format=\"{fl.mode}\" src=\"{fl.src}\" root=\"{fl.root}\"]\n"
             if fl.input_ref.id.id in channel_map:
                 dot += f"{channel_map[fl.input_ref.id.id]} -> {operator.id} [label=\"ref_in-{fl.tensor}\" style=bold type=\"ref\"]\n"
             channel_map[fl.output_ref.id.id] = operator.id
             channel_map[fl.output_crd.id.id] = operator.id
+        elif op == "root":
+            root = operator.root
+            print("Inside root ", operator.id, operator.name )
+            label = root.label
+            dot += f"{operator.id} [label = \"{label}\" color=green4 shape=box style=filled type=\"{operator.name}\"]\n"
+            channel_map[root.output_ref.id.id] = operator.id
         elif op == "joiner":
             joiner = operator.joiner
             label = joiner.label
@@ -76,8 +107,8 @@ def process_proto(program):
                 dot += f"{channel_map[joiner.input_pairs[1].crd.id.id]} -> {operator.id} [label=\"{joiner.input_pairs[1].crd.name}\" style=dashed type=\"crd\"]\n"
             if joiner.input_pairs[1].ref.id.id in channel_map:
                 dot += f"{channel_map[joiner.input_pairs[1].ref.id.id]} -> {operator.id} [label=\"{joiner.input_pairs[1].ref.name}\" style=bold type=\"ref\"]\n"
-            channel_map[joiner.output_ref1.id.id] = operator.id
-            channel_map[joiner.output_ref2.id.id] = operator.id
+            channel_map[joiner.output_refs[0].id.id] = operator.id
+            channel_map[joiner.output_refs[1].id.id] = operator.id
             channel_map[joiner.output_crd.id.id] = operator.id
         elif op == "fiber_write":
             fw = operator.fiber_write
@@ -116,6 +147,8 @@ def process_proto(program):
             dot += f"{operator.id} [label=\"{rep.label}\" color=cyan2 shape=box style=filled type=\"repeat\" index=\"{rep.index}\" tensor=\"{rep.tensor}\" root=\"{rep.root}\"]\n"
             if rep.input_ref.id.id in channel_map:
                 dot += f"{channel_map[rep.input_ref.id.id]} -> {operator.id} [label=\"{rep.input_ref.name}\" style=bold type=\"val\"]\n"
+            if rep.input_rep_ref.id.id in channel_map:
+                dot += f"{channel_map[rep.input_rep_ref.id.id]} -> {operator.id} [label=\"{rep.input_rep_ref.name}\" style=dashed type=\"crd\"]\n"
             if rep.input_rep_sig.id.id in channel_map:
                 dot += f"{channel_map[rep.input_rep_sig.id.id]} -> {operator.id} [label=\"{rep.input_rep_sig.name}\" style=dotted type=\"val\"]\n"
             channel_map[rep.output_ref.id.id] = operator.id
@@ -169,6 +202,34 @@ def process_proto(program):
             bd_type = bd.WhichOneof("conn")
             if bd_conn[bd_type][0].input.id.id in channel_map:
                 dot += f"{channel_map[bd_conn[bd_type][0].input.id.id]} -> {operator.id} [label=\"{bd_type}\" style=\"{bd_conn[bd_type][1]}\"]\n"
+        elif op == "fork":
+            bd = operator.fork
+            bd_conn = {}
+            bd_conn["crd"] = (bd.crd, "dashed")
+            bd_conn["ref"] = (bd.ref, "bold")
+            bd_conn["repsig"] = (bd.repsig, "dotted")
+            bd_conn["val"] = (bd.val, "solid")
+            bd_type = bd.WhichOneof("conn")
+            
+            dot += f"{operator.id} [label=\"{operator.name}\" color=\"#a52a2a\" shape=box style=filled type=\"{operator.name}\"]\n"
+            print("INSIDE FORK")
+            if bd_conn[bd_type][0].input.id.id in channel_map:
+                print("FOUND IN MAP")
+                dot += f"{channel_map[bd_conn[bd_type][0].input.id.id]} -> {operator.id} [label=\"{bd_type}\" style=\"{bd_conn[bd_type][1]}\"]\n"
+        elif op == "join":
+            bd = operator.join
+            bd_conn = {}
+            bd_conn["crd"] = (bd.crd, "dashed")
+            bd_conn["ref"] = (bd.ref, "bold")
+            bd_conn["repsig"] = (bd.repsig, "dotted")
+            bd_conn["val"] = (bd.val, "solid")
+            bd_type = bd.WhichOneof("conn")
+            dot += f"{operator.id} [label=\"{operator.name}\" color=\"#a52a2a\" shape=box style=filled type=\"{operator.name}\"]\n"
+            print("INSIDE Join")
+            for inputs in bd_conn[bd_type][0].inputs:
+                if inputs.id.id in channel_map:
+                    print("FOUND IN MAP")
+                    dot += f"{channel_map[inputs.id.id]} -> {operator.id} [label=\"{bd_type}\" style=\"{bd_conn[bd_type][1]}\"]\n"
 
     return dot
 
