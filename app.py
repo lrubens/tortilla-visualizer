@@ -43,7 +43,6 @@ def process_proto(program):
             for output in bd_conn[bd_type].outputs:
                 channel_map[output.id.id] = operator.id
         elif op == "fork":
-            print("inside fork")
             bd = operator.fork
             bd_conn = {}
             bd_conn["crd"] = bd.crd
@@ -55,7 +54,6 @@ def process_proto(program):
             for output in bd_conn[bd_type].outputs:
                 channel_map[output.id.id] = operator.id
         elif op == "join":
-            print("inside join")
             bd = operator.join
             bd_conn = {}
             bd_conn["crd"] = bd.crd
@@ -80,7 +78,6 @@ def process_proto(program):
     for operator in program.operators:
         op = operator.WhichOneof("op")
         op_id = operator.id
-        # print(op)
         if op == "fiber_lookup":
             fl = operator.fiber_lookup
             label = fl.label
@@ -91,7 +88,6 @@ def process_proto(program):
             channel_map[fl.output_crd.id.id] = operator.id
         elif op == "root":
             root = operator.root
-            print("Inside root ", operator.id, operator.name )
             label = root.label
             dot += f"{operator.id} [label = \"{label}\" color=green4 shape=box style=filled type=\"{operator.name}\"]\n"
             channel_map[root.output_ref.id.id] = operator.id
@@ -149,8 +145,8 @@ def process_proto(program):
                 dot += f"{channel_map[rep.input_ref.id.id]} -> {operator.id} [label=\"{rep.input_ref.name}\" style=bold type=\"val\"]\n"
             if rep.input_rep_ref.id.id in channel_map:
                 dot += f"{channel_map[rep.input_rep_ref.id.id]} -> {operator.id} [label=\"{rep.input_rep_ref.name}\" style=dashed type=\"crd\"]\n"
-            if rep.input_rep_sig.id.id in channel_map:
-                dot += f"{channel_map[rep.input_rep_sig.id.id]} -> {operator.id} [label=\"{rep.input_rep_sig.name}\" style=dotted type=\"val\"]\n"
+            # if rep.input_rep_sig.id.id in channel_map:
+            #     dot += f"{channel_map[rep.input_rep_sig.id.id]} -> {operator.id} [label=\"{rep.input_rep_sig.name}\" style=dotted type=\"val\"]\n"
             channel_map[rep.output_ref.id.id] = operator.id
         elif op == "repeatsig":
             repsig = operator.repeatsig
@@ -212,9 +208,7 @@ def process_proto(program):
             bd_type = bd.WhichOneof("conn")
             
             dot += f"{operator.id} [label=\"{operator.name}\" color=\"#a52a2a\" shape=box style=filled type=\"{operator.name}\"]\n"
-            print("INSIDE FORK")
             if bd_conn[bd_type][0].input.id.id in channel_map:
-                print("FOUND IN MAP")
                 dot += f"{channel_map[bd_conn[bd_type][0].input.id.id]} -> {operator.id} [label=\"{bd_type}\" style=\"{bd_conn[bd_type][1]}\"]\n"
         elif op == "join":
             bd = operator.join
@@ -225,10 +219,8 @@ def process_proto(program):
             bd_conn["val"] = (bd.val, "solid")
             bd_type = bd.WhichOneof("conn")
             dot += f"{operator.id} [label=\"{operator.name}\" color=\"#a52a2a\" shape=box style=filled type=\"{operator.name}\"]\n"
-            print("INSIDE Join")
             for inputs in bd_conn[bd_type][0].inputs:
                 if inputs.id.id in channel_map:
-                    print("FOUND IN MAP")
                     dot += f"{channel_map[inputs.id.id]} -> {operator.id} [label=\"{bd_type}\" style=\"{bd_conn[bd_type][1]}\"]\n"
 
     return dot

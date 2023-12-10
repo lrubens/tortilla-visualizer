@@ -75,10 +75,12 @@ function renderGraph() {
     .then(dotSource => {
       console.log(dotSource);
       if (graphviz) {
+        console.log(graphviz);
         graphviz
           .attributer(attributer)
           .renderDot(dotSource);
       } else {
+        console.log("INSIDE AFTER INIT");
         graphviz = d3.select("#graph").graphviz()
           .zoomScaleExtent([0.5, 2])
           .attributer(attributer)
