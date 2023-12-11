@@ -207,7 +207,7 @@ def process_proto(program):
             bd_conn["val"] = (bd.val, "solid")
             bd_type = bd.WhichOneof("conn")
             
-            dot += f"{operator.id} [label=\"{operator.name}\" color=\"#a52a2a\" shape=box style=filled type=\"{operator.name}\"]\n"
+            dot += f"{operator.id} [label=\"{operator.name}\" color=\"#416aa3\" shape=box style=filled type=\"{operator.name}\"]\n"
             if bd_conn[bd_type][0].input.id.id in channel_map:
                 dot += f"{channel_map[bd_conn[bd_type][0].input.id.id]} -> {operator.id} [label=\"{bd_type}\" style=\"{bd_conn[bd_type][1]}\"]\n"
         elif op == "join":
@@ -218,7 +218,7 @@ def process_proto(program):
             bd_conn["repsig"] = (bd.repsig, "dotted")
             bd_conn["val"] = (bd.val, "solid")
             bd_type = bd.WhichOneof("conn")
-            dot += f"{operator.id} [label=\"{operator.name}\" color=\"#a52a2a\" shape=box style=filled type=\"{operator.name}\"]\n"
+            dot += f"{operator.id} [label=\"{operator.name}\" color=\"#416aa3\" shape=box style=filled type=\"{operator.name}\"]\n"
             for inputs in bd_conn[bd_type][0].inputs:
                 if inputs.id.id in channel_map:
                     dot += f"{channel_map[inputs.id.id]} -> {operator.id} [label=\"{bd_type}\" style=\"{bd_conn[bd_type][1]}\"]\n"
