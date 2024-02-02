@@ -95,16 +95,12 @@ def process_proto(program):
             joiner = operator.joiner
             label = joiner.label
             dot += f"{operator.id} [label = \"{label}\" color=\"#800080\" shape=box style=filled type=\"{operator.name}\" index=\"{joiner.index}\"]\n"
-            if joiner.input_pairs[0].crd.id.id in channel_map:
-                dot += f"{channel_map[joiner.input_pairs[0].crd.id.id]} -> {operator.id} [label=\"{joiner.input_pairs[0].crd.name}\" style=dashed type=\"crd\"]\n"
-            if joiner.input_pairs[0].ref.id.id in channel_map:
-                dot += f"{channel_map[joiner.input_pairs[0].ref.id.id]} -> {operator.id} [label=\"{joiner.input_pairs[0].ref.name}\" style=bold type=\"ref\"]\n"
-            if joiner.input_pairs[1].crd.id.id in channel_map:
-                dot += f"{channel_map[joiner.input_pairs[1].crd.id.id]} -> {operator.id} [label=\"{joiner.input_pairs[1].crd.name}\" style=dashed type=\"crd\"]\n"
-            if joiner.input_pairs[1].ref.id.id in channel_map:
-                dot += f"{channel_map[joiner.input_pairs[1].ref.id.id]} -> {operator.id} [label=\"{joiner.input_pairs[1].ref.name}\" style=bold type=\"ref\"]\n"
-            channel_map[joiner.output_refs[0].id.id] = operator.id
-            channel_map[joiner.output_refs[1].id.id] = operator.id
+            for i, val_bundle in enumerate(joiner.input_pairs):
+                if val_bundle.crd.id.id in channel_map:
+                    dot += f"{channel_map[val_bundle.crd.id.id]} -> {operator.id} [label=\"{val_bundle.crd.name}\" style=dashed type=\"crd\"]\n"
+                if val_bundle.ref.id.id in channel_map:
+                    dot += f"{channel_map[val_bundle.ref.id.id]} -> {operator.id} [label=\"{val_bundle.ref.name}\" style=bold type=\"ref\"]\n"
+                channel_map[joiner.output_refs[i].id.id] = operator.id
             channel_map[joiner.output_crd.id.id] = operator.id
         elif op == "fiber_write":
             fw = operator.fiber_write
