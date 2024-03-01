@@ -134,6 +134,13 @@ def process_proto(program):
             if red.input_val.id.id in channel_map:
                 dot += f"{channel_map[red.input_val.id.id]} -> {operator.id} [label=\"{red.input_val.name}\" type=\"val\"]\n"
             channel_map[red.output_val.id.id] = operator.id
+        elif op == "gen_ref":
+            red = operator.gen_ref
+            dot += f"{operator.id} [label=\"{operator.name}\" color=purple shape=box style=filled type=\"gen_ref\"]\n"
+            if red.input_crd.id.id in channel_map:
+                dot += f"{channel_map[red.input_crd.id.id]} -> {operator.id} [label=\"{red.input_crd.name}\" type=\"val\"]\n"
+            channel_map[red.output_ref.id.id] = operator.id
+            print("FOUND GEN REF")
         elif op == "repeat":
             rep = operator.repeat
             dot += f"{operator.id} [label=\"{rep.label}\" color=cyan2 shape=box style=filled type=\"repeat\" index=\"{rep.index}\" tensor=\"{rep.tensor}\" root=\"{rep.root}\"]\n"
