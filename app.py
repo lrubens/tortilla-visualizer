@@ -81,7 +81,9 @@ def process_proto(program):
         if op == "fiber_lookup":
             fl = operator.fiber_lookup
             label = fl.label
-            dot += f"{operator.id} [label = \"{label}\" color=green1 shape=box style=filled type=\"{operator.name}\" index=\"{fl.index}\" tensor=\"{fl.tensor}\" format=\"{fl.mode}\" src=\"{fl.src}\" root=\"{fl.root}\"]\n"
+            lab = label.split(" ")
+            new_label = lab[0] + " " + fl.tensor + " : " + lab[1] 
+            dot += f"{operator.id} [label = \"{new_label}\" color=green1 shape=box style=filled type=\"{operator.name}\" index=\"{fl.index}\" tensor=\"{fl.tensor}\" format=\"{fl.mode}\" src=\"{fl.src}\" root=\"{fl.root}\"]\n"
             if fl.input_ref.id.id in channel_map:
                 dot += f"{channel_map[fl.input_ref.id.id]} -> {operator.id} [label=\"ref_in-{fl.tensor}\" style=bold type=\"ref\"]\n"
             channel_map[fl.output_ref.id.id] = operator.id
