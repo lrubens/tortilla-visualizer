@@ -2,6 +2,7 @@ from flask import Flask, request, render_template
 from flask_cors import CORS
 from google.protobuf import text_format
 import tortilla_pb2
+import comal_pb2
 
 app = Flask(__name__)
 CORS(app)
@@ -12,12 +13,13 @@ def process():
     proto_text = request.data
 
     # Parse the protobuf text proto.
-    program = tortilla_pb2.ProgramGraph()
+    # program = tortilla_pb2.ProgramGraph()
+    program = comal_pb2.ComalGraph()
     text_format.Parse(bytes.decode(proto_text), program)
 
     # Process the protobuf message.
     result = "digraph SAM {\n"
-    result += process_proto(program)
+    result += process_proto(program.graph)
     result += "}"
 
     return result
@@ -81,7 +83,9 @@ def process_proto(program):
         if op == "fiber_lookup":
             fl = operator.fiber_lookup
             label = fl.label
-            dot += f"{operator.id} [label = \"{label}\" color=green1 shape=box style=filled type=\"{operator.name}\" index=\"{fl.index}\" tensor=\"{fl.tensor}\" format=\"{fl.mode}\" src=\"{fl.src}\" root=\"{fl.root}\"]\n"
+            lab = label.split(" ")
+            new_label = lab[0] + " " + fl.tensor + ": " + lab[1]
+            dot += f"{operator.id} [label = \"{new_label}\" color=green1 shape=box style=filled type=\"{operator.name}\" index=\"{fl.index}\" tensor=\"{fl.tensor}\" format=\"{fl.mode}\" src=\"{fl.src}\" root=\"{fl.root}\"]\n"
             if fl.input_ref.id.id in channel_map:
                 dot += f"{channel_map[fl.input_ref.id.id]} -> {operator.id} [label=\"ref_in-{fl.tensor}\" style=bold type=\"ref\"]\n"
             channel_map[fl.output_ref.id.id] = operator.id
@@ -119,7 +123,8 @@ def process_proto(program):
             label = av.label
             dot += f"{operator.id} [label=\"{label}\" color=green2 shape=box style=filled type=\"operator.name\" tensor=\"{av.tensor}\"]\n"
             if av.input_ref.id.id in channel_map:
-                dot += f"{channel_map[av.input_ref.id.id]} -> {operator.id} [label=\"{av.input_ref.name}\" style=bold type=\"ref\"]\n"
+                ref_label = "ref_out-" + av.tensor 
+                dot += f"{channel_map[av.input_ref.id.id]} -> {operator.id} [label=\"{ref_label}\" style=bold type=\"ref\"]\n"
             channel_map[av.output_val.id.id] = operator.id
         elif op == "alu":
             alu = operator.alu
