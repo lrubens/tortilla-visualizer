@@ -2,6 +2,7 @@ from flask import Flask, request, render_template
 from flask_cors import CORS
 from google.protobuf import text_format
 import tortilla_pb2
+import comal_pb2
 
 app = Flask(__name__)
 CORS(app)
@@ -12,12 +13,12 @@ def process():
     proto_text = request.data
 
     # Parse the protobuf text proto.
-    program = tortilla_pb2.ProgramGraph()
+    program = comal_pb2.ComalGraph()
     text_format.Parse(bytes.decode(proto_text), program)
 
     # Process the protobuf message.
     result = "digraph SAM {\n"
-    result += process_proto(program)
+    result += process_proto(program.graph)
     result += "}"
 
     return result
@@ -125,14 +126,21 @@ def process_proto(program):
             channel_map[av.output_val.id.id] = operator.id
         elif op == "alu":
             alu = operator.alu
-            dot += f"{operator.id} [label=\"{operator.name}\" color=\"#a52a2a\" shape=box style=filled type=\"{operator.name}\"]\n"
+            color = "#a52a2a"
+            if operator.name == "max" or operator.name == "exp":
+                color = "pink1"
+            dot += f"{operator.id} [label=\"{operator.name}\" color=\"{color}\" shape=box style=filled type=\"{operator.name}\"]\n"
             for val in alu.vals.inputs:
                 if val.id.id in channel_map:
                     dot += f"{channel_map[val.id.id]} -> {operator.id} [label=\"{val.name}\" type=\"val\"]\n"
             channel_map[alu.vals.output.id.id] = operator.id
         elif op == "reduce":
             red = operator.reduce
-            dot += f"{operator.id} [label=\"{operator.name}\" color=brown shape=box style=filled type=\"reduce\"]\n"
+            name = operator.name
+            color = "brown"
+            if red.reduce_type == 1:
+                name = "max reduce" 
+            dot += f"{operator.id} [label=\"{name}\" color={color} shape=box style=filled type=\"reduce\"]\n"
             if red.input_val.id.id in channel_map:
                 dot += f"{channel_map[red.input_val.id.id]} -> {operator.id} [label=\"{red.input_val.name}\" type=\"val\"]\n"
             channel_map[red.output_val.id.id] = operator.id
@@ -142,7 +150,6 @@ def process_proto(program):
             if red.input_crd.id.id in channel_map:
                 dot += f"{channel_map[red.input_crd.id.id]} -> {operator.id} [label=\"{red.input_crd.name}\" type=\"val\"]\n"
             channel_map[red.output_ref.id.id] = operator.id
-            print("FOUND GEN REF")
         elif op == "repeat":
             rep = operator.repeat
             dot += f"{operator.id} [label=\"{rep.label}\" color=cyan2 shape=box style=filled type=\"repeat\" index=\"{rep.index}\" tensor=\"{rep.tensor}\" root=\"{rep.root}\"]\n"
