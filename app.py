@@ -121,6 +121,8 @@ def process_proto(program):
         elif op == "array":
             av = operator.array
             label = av.label
+            stream_label = "ref_in-" + av.tensor
+            # print(av.tensor)
             dot += f"{operator.id} [label=\"{label}\" color=green2 shape=box style=filled type=\"operator.name\" tensor=\"{av.tensor}\"]\n"
             if av.input_ref.id.id in channel_map:
                 ref_label = "ref_out-" + av.tensor 
@@ -211,7 +213,7 @@ def process_proto(program):
             bd_conn["val"] = (bd.val, "solid")
             bd_type = bd.WhichOneof("conn")
             if bd_conn[bd_type][0].input.id.id in channel_map:
-                dot += f"{channel_map[bd_conn[bd_type][0].input.id.id]} -> {operator.id} [label=\"{bd_type}\" style=\"{bd_conn[bd_type][1]}\"]\n"
+                dot += f"{channel_map[bd_conn[bd_type][0].input.id.id]} -> {operator.id} [label=\"{bd_conn[bd_type][0].input.name}\" style=\"{bd_conn[bd_type][1]}\"]\n"
         elif op == "fork":
             bd = operator.fork
             bd_conn = {}
