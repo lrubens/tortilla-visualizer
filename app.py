@@ -3,6 +3,7 @@ from flask_cors import CORS
 from google.protobuf import text_format
 import tortilla_pb2
 import comal_pb2
+import comal_pb2
 
 app = Flask(__name__)
 CORS(app)
@@ -124,7 +125,8 @@ def process_proto(program):
             # print(av.tensor)
             dot += f"{operator.id} [label=\"{label}\" color=green2 shape=box style=filled type=\"operator.name\" tensor=\"{av.tensor}\"]\n"
             if av.input_ref.id.id in channel_map:
-                dot += f"{channel_map[av.input_ref.id.id]} -> {operator.id} [label=\"{stream_label}\" style=bold type=\"ref\"]\n"
+                ref_label = "ref_out-" + av.tensor 
+                dot += f"{channel_map[av.input_ref.id.id]} -> {operator.id} [label=\"{ref_label}\" style=bold type=\"ref\"]\n"
             channel_map[av.output_val.id.id] = operator.id
         elif op == "alu":
             alu = operator.alu
