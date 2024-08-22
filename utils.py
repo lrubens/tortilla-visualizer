@@ -150,13 +150,28 @@ def process_proto(program):
         elif op == "repeat":
             rep = operator.repeat
             dot += f"{operator.id} [label=\"{rep.label}\" color=cyan2 shape=box style=filled type=\"repeat\" index=\"{rep.index}\" tensor=\"{rep.tensor}\" root=\"{rep.root}\"]\n"
-            if rep.input_ref.id.id in channel_map:
-                dot += f"{channel_map[rep.input_ref.id.id]} -> {operator.id} [label=\"{rep.input_ref.name}\" style=bold type=\"val\"]\n"
-            if rep.input_rep_ref.id.id in channel_map:
-                dot += f"{channel_map[rep.input_rep_ref.id.id]} -> {operator.id} [label=\"{rep.input_rep_ref.name}\" style=dashed type=\"crd\"]\n"
+            in_ref_id = 0
+            in_ref_one = rep.WhichOneof("input_ref")
+            if in_ref_one == "in_val":
+                in_ref_id = rep.in_val.id.id
+            else:
+                in_ref_id = rep.in_ref.id.id
+            rep_id = 0
+            in_rep_one = rep.WhichOneof("input_rep_sig")
+            if in_rep_one == "rep_val":
+                rep_id = rep.rep_val.id.id
+            else:
+                rep_id = rep.rep_ref.id.id
+            if in_ref_id in channel_map:
+                dot += f"{channel_map[in_ref_id]} -> {operator.id} [label=\"ref\" style=bold type=\"val\"]\n"
+            if rep_id in channel_map:
+                dot += f"{channel_map[rep_id]} -> {operator.id} [label=\"sig\" style=dashed type=\"crd\"]\n"
             # if rep.input_rep_sig.id.id in channel_map:
             #     dot += f"{channel_map[rep.input_rep_sig.id.id]} -> {operator.id} [label=\"{rep.input_rep_sig.name}\" style=dotted type=\"val\"]\n"
-            channel_map[rep.output_ref.id.id] = operator.id
+            if in_ref_one == "in_val":
+                channel_map[rep.out_val.id.id] = operator.id
+            else:
+                channel_map[rep.out_ref.id.id] = operator.id
         elif op == "repeatsig":
             repsig = operator.repeatsig
             dot += f"{operator.id} [label=\"{repsig.label}\" color=cyan3 shape=box style=filled type=\"repsiggen\" index=\"{repsig.index}\"]\n"
