@@ -124,9 +124,10 @@ def process_proto(program):
         elif op == "alu":
             alu = operator.alu
             color = "#a52a2a"
-            if operator.name == "max" or operator.name == "exp":
+            operator_name = operator.name
+            if operator.name == "max" or operator.name == "exp" or operator.name == "scalarAdd" or operator.name == "scalarMul" or operator.name == "scalarDiv" or operator.name == "rsqrt":
                 color = "pink1"
-            dot += f"{operator.id} [label=\"{operator.name}\" color=\"{color}\" shape=box style=filled type=\"{operator.name}\"]\n"
+            dot += f"{operator.id} [label=\"{operator_name}\" color=\"{color}\" shape=box style=filled type=\"{operator_name}\"]\n"
             for val in alu.vals.inputs:
                 if val.id.id in channel_map:
                     dot += f"{channel_map[val.id.id]} -> {operator.id} [label=\"{val.name}\" type=\"val\"]\n"
