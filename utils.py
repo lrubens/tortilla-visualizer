@@ -127,6 +127,8 @@ def process_proto(program):
             operator_name = operator.name
             if operator.name == "max" or operator.name == "exp" or operator.name == "scalarAdd" or operator.name == "scalarMul" or operator.name == "scalarDiv" or operator.name == "rsqrt":
                 color = "pink1"
+            if operator.name == "elemmul":
+                operator_name = "mul"
             dot += f"{operator.id} [label=\"{operator_name}\" color=\"{color}\" shape=box style=filled type=\"{operator_name}\"]\n"
             for val in alu.vals.inputs:
                 if val.id.id in channel_map:
