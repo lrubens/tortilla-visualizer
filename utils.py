@@ -175,6 +175,16 @@ def process_proto(program):
                 channel_map[rep.out_val.id.id] = operator.id
             else:
                 channel_map[rep.out_ref.id.id] = operator.id
+        elif op == "locate":
+            loc = operator.locate
+            dot += f"{operator.id} [label=\"{loc.label}\" color=gold shape=box style=filled type=\"locate\"]\n"
+            if loc.input_crd.id.id in channel_map:
+                dot += f"{channel_map[loc.input_crd.id.id]} -> {operator.id} [label=\"crd\" style=dashed type=\"crd\"]\n"
+            if loc.input_ref.id.id in channel_map:
+                dot += f"{channel_map[loc.input_ref.id.id]} -> {operator.id} [label=\"crd\" style=bold type=\"crd\"]\n"
+            channel_map[loc.output_ref1.id.id] = operator.id
+            channel_map[loc.output_ref2.id.id] = operator.id
+            channel_map[loc.output_crd.id.id] = operator.id
         elif op == "repeatsig":
             repsig = operator.repeatsig
             dot += f"{operator.id} [label=\"{repsig.label}\" color=cyan3 shape=box style=filled type=\"repsiggen\" index=\"{repsig.index}\"]\n"
