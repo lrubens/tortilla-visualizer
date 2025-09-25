@@ -17,7 +17,7 @@ def process_proto(program):
             bd_conn["ref"] = bd.ref
             bd_conn["repsig"] = bd.repsig
             bd_conn["val"] = bd.val
-            dot += f"{operator.id} [shape=point style=invis type=\"broadcast\"]"
+            dot += f"{operator.id} [shape=point style=invis type=\"broadcast\"]\n"
             bd_type = bd.WhichOneof("conn")
             for output in bd_conn[bd_type].outputs:
                 channel_map[output.id.id] = operator.id
@@ -28,7 +28,7 @@ def process_proto(program):
             bd_conn["ref"] = bd.ref
             bd_conn["repsig"] = bd.repsig
             bd_conn["val"] = bd.val
-            dot += f"{operator.id} [label = \"Fork\" shape=box color=purple style=invis type=\"fork\"]"
+            dot += f"{operator.id} [label = \"Fork\" shape=box color=purple style=invis type=\"fork\"]\n"
             bd_type = bd.WhichOneof("conn")
             for output in bd_conn[bd_type].outputs:
                 channel_map[output.id.id] = operator.id
@@ -39,13 +39,13 @@ def process_proto(program):
             bd_conn["ref"] = bd.ref
             bd_conn["repsig"] = bd.repsig
             bd_conn["val"] = bd.val
-            dot += f"{operator.id} [label = \"Join\" shape=box color=purple style=invis type=\"fork\"]"
+            dot += f"{operator.id} [label = \"Join\" shape=box color=purple style=invis type=\"fork\"]\n"
             bd_type = bd.WhichOneof("conn")
             # for output in bd_conn[bd_type].outputs:
             channel_map[bd_conn[bd_type].output.id.id] = operator.id
         elif op == "func":
             intrin = operator.func
-            dot += f"{operator.id} [label=\"{intrin.name}\" color=palevioletred2 shape=box style=filled type=\"intrinsic\"]"
+            dot += f"{operator.id} [label=\"{intrin.name}\" color=palevioletred2 shape=box style=filled type=\"intrinsic\"]\n"
             channel_map[intrin.output_val.id.id] = operator.id
         elif op == "spacc":
             sp = operator.spacc
@@ -53,6 +53,13 @@ def process_proto(program):
             in_lst.extend([f"{num+1}={index}" for num,
                            index in enumerate(sp.outer_crds)])
             dot += f"{operator.id} [label=\"{sp.label} {' '.join(in_lst)} \" color=brown shape=box style=filled type=\"spaccumulator\" order=\"{sp.order}\" in0=\"{sp.inner_crd}\"]\n"
+        elif op == "concat":
+            cc = operator.concat
+            label = cc.label if cc.label else "Concat"
+            dot += f"{operator.id} [label = \"{label}\" shape=box color=\"#009688\" style=invis type=\"concat\" axis=\"{cc.axis}\"]\n"
+            for out_crd in cc.out_crds:
+                channel_map[out_crd.id.id] = operator.id
+            channel_map[cc.out_val.id.id] = operator.id
 
     for operator in program.operators:
         op = operator.WhichOneof("op")
@@ -63,7 +70,7 @@ def process_proto(program):
             lab = label.split(" ")
             new_label = lab[0] + " " + fl.tensor + \
                 " : " + lab[1] + " (" + fl.format + ")"
-            dot += f"{operator.id} [label = \"{new_label}\" color=green1 shape=box style=filled type=\"{operator.name}\" index=\"{fl.index}\" tensor=\"{fl.tensor}\" format=\"{fl.format}\" src=\"{fl.src}\" root=\"{fl.root}\"]\n"
+            dot += f"{operator.id} [comment=\"type={lab[0]},index={fl.index},tensor={fl.tensor},mode={fl.mode},format={fl.format},src=true,root=false\" label = \"{new_label}\" color=green1 shape=box style=filled type=\"{operator.name}\" index=\"{fl.index}\" tensor=\"{fl.tensor}\" format=\"{fl.format}\" src=\"{fl.src}\" root=\"{fl.root}\"]\n"
             if fl.input_ref.id.id in channel_map:
                 dot += f"{channel_map[fl.input_ref.id.id]} -> {operator.id} [label=\"ref_in-{fl.tensor}\" style=bold type=\"ref\"]\n"
             channel_map[fl.output_ref.id.id] = operator.id
@@ -75,8 +82,10 @@ def process_proto(program):
             channel_map[root.output_ref.id.id] = operator.id
         elif op == "joiner":
             joiner = operator.joiner
-            label = joiner.label
-            dot += f"{operator.id} [label = \"{label}\" color=\"#800080\" shape=box style=filled type=\"{operator.name}\" index=\"{joiner.index}\"]\n"
+            label = joiner.label.lower()
+            print(label)
+            op_name = label.split(" ")[0]
+            dot += f"{operator.id} [comment=\"type={op_name},index={joiner.index}\" label = \"{label}\" color=\"#800080\" shape=box style=filled type=\"{operator.name}\" index=\"{joiner.index}\"]\n"
             for i, val_bundle in enumerate(joiner.input_pairs):
                 if val_bundle.crd.id.id in channel_map:
                     dot += f"{channel_map[val_bundle.crd.id.id]} -> {operator.id} [label=\"{val_bundle.crd.name}\" style=dashed type=\"crd\"]\n"
@@ -225,6 +234,19 @@ def process_proto(program):
             channel_map[sp.output_inner_crd.id.id] = operator.id
             for outer_crd in sp.output_outer_crds:
                 channel_map[outer_crd.id.id] = operator.id
+        elif op == "concat":
+            cc = operator.concat
+            label = cc.label if cc.label else "Concat"
+            dot += f"{operator.id} [label=\"{label}\" color=\"#009688\" shape=box style=filled type=\"concat\" axis=\"{cc.axis}\"]\n"
+            for in_crd in cc.in_crds:
+                if in_crd.id.id in channel_map:
+                    dot += f"{channel_map[in_crd.id.id]} -> {operator.id} [label=\"{in_crd.name}\" style=dashed type=\"crd\"]\n"
+            for in_val in cc.in_vals:
+                if in_val.id.id in channel_map:
+                    dot += f"{channel_map[in_val.id.id]} -> {operator.id} [label=\"{in_val.name}\" type=\"val\"]\n"
+            for out_crd in cc.out_crds:
+                channel_map[out_crd.id.id] = operator.id
+            channel_map[cc.out_val.id.id] = operator.id
         elif op == "broadcast":
             bd = operator.broadcast
             bd_conn = {}
