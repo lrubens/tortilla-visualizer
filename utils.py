@@ -56,7 +56,7 @@ def process_proto(program):
         elif op == "concat":
             cc = operator.concat
             label = cc.label if cc.label else "Concat"
-            dot += f"{operator.id} [label = \"{label}\" shape=box color=\"#009688\" style=invis type=\"concat\" axis=\"{cc.axis}\"]\n"
+            dot += f"{operator.id} [label = \"{label}\" shape=box color=\"#009688\" style=invis type=\"concat\" axis=\"{cc.axis}\" rank=\"{cc.rank}\" dim_len=\"{cc.dim_len}\"]\n"
             for out_crd in cc.out_crds:
                 channel_map[out_crd.id.id] = operator.id
             channel_map[cc.out_val.id.id] = operator.id
@@ -237,15 +237,21 @@ def process_proto(program):
         elif op == "concat":
             cc = operator.concat
             label = cc.label if cc.label else "Concat"
-            dot += f"{operator.id} [label=\"{label}\" color=\"#009688\" shape=box style=filled type=\"concat\" axis=\"{cc.axis}\"]\n"
+            label_with_axis = f"{label}\\naxis={cc.axis}"
+            dot += f"{operator.id} [label=\"{label_with_axis}\" color=\"#009688\" shape=box style=filled type=\"concat\" axis=\"{cc.axis}\" rank=\"{cc.rank}\" dim_len=\"{cc.dim_len}\"]\n"
             for in_crd in cc.in_crds:
                 if in_crd.id.id in channel_map:
                     dot += f"{channel_map[in_crd.id.id]} -> {operator.id} [label=\"{in_crd.name}\" style=dashed type=\"crd\"]\n"
-            for in_val in cc.in_vals:
-                if in_val.id.id in channel_map:
-                    dot += f"{channel_map[in_val.id.id]} -> {operator.id} [label=\"{in_val.name}\" type=\"val\"]\n"
+            for in_ref in cc.in_refs:
+                print("concat:", in_ref)
+                if in_ref.id.id in channel_map:
+                    dot += f"{channel_map[in_ref.id.id]} -> {operator.id} [label=\"{in_ref.name}\" style=bold type=\"crd\"]\n"
+            if cc.in_val.id.id in channel_map:
+                dot += f"{channel_map[cc.in_val.id.id]} -> {operator.id} [label=\"{cc.in_val.name}\" type=\"val\"]\n"
             for out_crd in cc.out_crds:
                 channel_map[out_crd.id.id] = operator.id
+            for out_ref in cc.out_refs:
+                channel_map[out_ref.id.id] = operator.id
             channel_map[cc.out_val.id.id] = operator.id
         elif op == "broadcast":
             bd = operator.broadcast

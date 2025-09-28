@@ -20,6 +20,7 @@ def process():
     result = "digraph SAM {\n"
     result += process_proto(program.graph)
     result += "}"
+    # print(result)
     (graph,) = pydot.graph_from_dot_data(result)
     out_file = args.outfile
     graph.write_png(out_file)
